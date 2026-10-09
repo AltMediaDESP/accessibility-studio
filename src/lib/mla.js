@@ -1,34 +1,13 @@
 // MLA 9th edition citations for the common cases: an article, chapter or web page
 // that is part of something bigger ("part"), or a book or whole website on its own
 // ("whole"). Each citation comes back as plain text and as HTML with the italics
-// MLA requires, so it pastes into Google Docs correctly.
+// MLA requires, so it pastes into Google Docs correctly. See cite-common.js for the
+// shape of a source.
 
-/**
- * @typedef {object} Source
- * @property {'part'|'whole'} kind
- * @property {{first: string, last: string}[]} authors
- * @property {string} title       article, chapter or page title (part) or book/site title (whole)
- * @property {string} container   website, journal or book the part is in
- * @property {string} publisher
- * @property {string} date        as it should appear, e.g. "2024" or "12 Mar. 2024"
- * @property {string} location    page numbers ("42" or "12-15") or a URL
- * @property {string} accessed    optional access date for web sources
- */
+import { escape, close, cleanAuthors, cleanDate, pageRange, doiUrl, isUrl, render } from './cite-common.js';
 
-const escape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-/** Adds a closing mark unless the text already ends with one. */
-function close(text, mark) {
-  const t = text.trim();
-  if (!t) return '';
-  return /[.?!]$/.test(t) ? t : t + mark;
-}
-
-function cleanAuthors(authors) {
-  return (authors || [])
-    .map((a) => ({ first: (a.first || '').trim(), last: (a.last || '').trim() }))
-    .filter((a) => a.first || a.last);
-}
+// MLA abbreviates months longer than four letters.
+const MLA_MONTHS = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
 
 function fullName(a) {
   return [a.first, a.last].filter(Boolean).join(' ');
@@ -47,13 +26,24 @@ export function authorList(authors) {
   return `${invertedName(list[0])}, et al`;
 }
 
-/** "p. 42", "pp. 12-15" or a URL without "https://". */
+/** "2024", "Mar. 2024" or "12 Mar. 2024". */
+export function formatDate(date) {
+  const { year, month, day } = cleanDate(date);
+  if (!year) return '';
+  const m = MLA_MONTHS[Number(month) - 1];
+  if (!m) return year;
+  return day ? `${day} ${m} ${year}` : `${m} ${year}`;
+}
+
+/** "p. 42", "pp. 12-15", a DOI as https://doi.org/…, or a URL without "https://". */
 export function formatLocation(location) {
   const loc = (location || '').trim();
   if (!loc) return '';
-  if (/^https?:\/\//i.test(loc)) return loc.replace(/^https?:\/\//i, '');
-  if (/^\d+\s*[-–]\s*\d+$/.test(loc)) return `pp. ${loc.replace(/\s*[-–]\s*/, '-')}`;
-  if (/^\d+$/.test(loc)) return `p. ${loc}`;
+  const doi = doiUrl(loc);
+  if (doi) return doi;
+  if (isUrl(loc)) return loc.replace(/^https?:\/\//i, '');
+  const pages = pageRange(loc);
+  if (pages) return pages.last ? `pp. ${pages.first}-${pages.last}` : `p. ${pages.first}`;
   return loc;
 }
 
@@ -61,7 +51,7 @@ export function formatLocation(location) {
 export function worksCited(source) {
   const authors = authorList(source.authors);
   const title = (source.title || '').trim();
-  const parts = []; // [{text, italic}]
+  const parts = [];
   const push = (text, italic = false) => text && parts.push({ text, italic });
 
   if (authors) push(close(authors, '.') + ' ');
@@ -78,8 +68,11 @@ export function worksCited(source) {
   // The container and the facts after it are separated by commas; the last one ends with a period.
   const tail = [];
   if (source.kind !== 'whole' && source.container?.trim()) tail.push({ text: source.container.trim(), italic: true });
+  if (source.volume?.trim()) tail.push({ text: `vol. ${source.volume.trim()}` });
+  if (source.issue?.trim()) tail.push({ text: `no. ${source.issue.trim()}` });
   if (source.publisher?.trim()) tail.push({ text: source.publisher.trim() });
-  if (source.date?.trim()) tail.push({ text: source.date.trim() });
+  const date = formatDate(source.date);
+  if (date) tail.push({ text: date });
   const location = formatLocation(source.location);
   if (location) tail.push({ text: location });
   tail.forEach((item, i) => {
@@ -88,10 +81,7 @@ export function worksCited(source) {
   });
 
   if (source.accessed?.trim()) push(` Accessed ${close(source.accessed.trim(), '.')}`);
-
-  const textOut = parts.map((p) => p.text).join('').trim();
-  const htmlOut = parts.map((p) => (p.italic ? `<i>${escape(p.text)}</i>` : escape(p.text))).join('').trim();
-  return { text: textOut || '', html: htmlOut || '' };
+  return render(parts);
 }
 
 /** The in-text citation, e.g. "quote" (Doe 42). */
@@ -113,17 +103,12 @@ export function inText(source, quote = '') {
     whoHtml = source.kind === 'whole' ? `<i>${escape(short)}</i>` : escape(who);
   }
 
-  const loc = (source.location || '').trim();
-  const page = /^\d+(\s*[-–]\s*\d+)?$/.test(loc) ? ` ${loc.replace(/\s*[-–]\s*/, '-')}` : '';
+  const pages = pageRange(source.location);
+  const page = pages ? ` ${pages.first}${pages.last ? `-${pages.last}` : ''}` : '';
 
   const q = quote.trim().replace(/^["“]|["”]$/g, '');
-  if (!q) {
-    return { text: `(${who}${page})`, html: `(${whoHtml}${page})` };
-  }
+  if (!q) return { text: `(${who}${page})`, html: `(${whoHtml}${page})` };
   // A question or exclamation mark stays inside the quotation marks; a period moves after the citation.
   const body = q.replace(/\.$/, '');
-  return {
-    text: `“${body}” (${who}${page}).`,
-    html: `“${escape(body)}” (${whoHtml}${page}).`,
-  };
+  return { text: `“${body}” (${who}${page}).`, html: `“${escape(body)}” (${whoHtml}${page}).` };
 }

@@ -1,6 +1,6 @@
 # Accessibility Studio
 
-A web page that cleans up content pasted from **Canvas, Word, Google Docs or PowerPoint** into accessible text for Google Docs. It also builds **MLA citations**.
+A web page that cleans up content pasted from **Canvas, Word, Google Docs or PowerPoint** into accessible text for Google Docs. It also builds **MLA and APA citations**.
 
 **Use it:** https://altmediadesp.github.io/accessibility-studio/
 
@@ -34,9 +34,13 @@ Everything happens in your browser tab. What you paste is never uploaded or save
 
 With **Standard formatting** on (the default), the result uses Arial 12pt with 1.5 line spacing and consistent heading sizes, written as inline styles so Google Docs keeps them.
 
-## MLA citations
+## Citations
 
-Fill in the source details and the Works Cited entry and the in-text citation update as you type (MLA 9th edition). It handles one, two, or three or more authors ("et al."), sources with no author, page numbers and web addresses, and access dates. **Copy** keeps the italics and the hanging indent when pasted into Google Docs.
+Pick **MLA 9** or **APA 7** at the top of the **Citations** tab (the page remembers your choice), fill in what you know about the source, and the full entry (Works Cited or reference list) and the in-text citation update as you type.
+
+It handles one, two, or more authors (MLA "et al."; APA lists up to 20), group authors like agencies, sources with no author or no date, journal volume and issue, page numbers, web addresses and DOIs, and MLA access dates. APA journal articles get the year only, as APA requires. **Copy** keeps the italics and the hanging indent when pasted into Google Docs.
+
+APA writes article and book titles in sentence case (only the first word and names capitalized). The page can't change capitalization without breaking names, so it uses titles as typed and shows a reminder.
 
 ## Developing
 
@@ -56,7 +60,7 @@ npm run build    # the finished page, in dist/
 | `src/lib/clean.js` | All the cleaning rules, in the order they run. |
 | `src/lib/links.js` | Works out a link's type and a readable name from its address. |
 | `src/lib/color.js` | Color parsing and the contrast check. |
-| `src/lib/mla.js` | MLA formatting. |
+| `src/lib/mla.js`, `src/lib/apa.js`, `src/lib/cite-common.js` | MLA and APA formatting. |
 | `src/main.js`, `index.html`, `src/styles.css` | The page. |
 | `tests/` | Tests, run with Node's built-in test runner and [jsdom](https://github.com/jsdom/jsdom). |
 

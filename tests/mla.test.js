@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { worksCited, inText, authorList, formatLocation } from '../src/lib/mla.js';
+import { worksCited, inText, authorList, formatLocation, formatDate } from '../src/lib/mla.js';
 
 const article = {
   kind: 'part',
@@ -9,7 +9,7 @@ const article = {
   title: 'The Future of Reading',
   container: 'The Atlantic',
   publisher: '',
-  date: '12 Mar. 2024',
+  date: { year: '2024', month: '3', day: '12' },
   location: 'https://www.theatlantic.com/reading',
   accessed: '',
 };
@@ -21,7 +21,7 @@ test('article on a website', () => {
 });
 
 test('book on its own: the title is in italics', () => {
-  const entry = worksCited({ kind: 'whole', authors: [{ first: 'Toni', last: 'Morrison' }], title: 'Beloved', publisher: 'Knopf', date: '1987' });
+  const entry = worksCited({ kind: 'whole', authors: [{ first: 'Toni', last: 'Morrison' }], title: 'Beloved', publisher: 'Knopf', date: { year: '1987' } });
   assert.equal(entry.text, 'Morrison, Toni. Beloved. Knopf, 1987.');
   assert.equal(entry.html, 'Morrison, Toni. <i>Beloved</i>. Knopf, 1987.');
 });
@@ -47,6 +47,17 @@ test('page numbers and access dates', () => {
   assert.equal(entry.text, 'Doe, Jane. “The Future of Reading.” The Atlantic, 12 Mar. 2024, pp. 12-15. Accessed 3 Oct. 2026.');
 });
 
+test('volume, issue and DOI', () => {
+  const entry = worksCited({ ...article, container: 'Journal of College Reading', volume: '12', issue: '3', location: 'doi:10.1234/abc' });
+  assert.equal(entry.text, 'Doe, Jane. “The Future of Reading.” Journal of College Reading, vol. 12, no. 3, 12 Mar. 2024, https://doi.org/10.1234/abc.');
+});
+
+test('dates: MLA month abbreviations', () => {
+  assert.equal(formatDate({ year: '2025', month: '9', day: '' }), 'Sept. 2025');
+  assert.equal(formatDate({ year: '2025', month: '6', day: '1' }), '1 June 2025');
+  assert.equal(formatDate({ year: '2025' }), '2025');
+});
+
 test('in-text citations', () => {
   const src = { ...article, location: '42' };
   assert.equal(inText(src, 'Reading is changing.').text, '“Reading is changing” (Doe 42).');
@@ -61,5 +72,5 @@ test('in-text citations', () => {
 });
 
 test('text is escaped in the HTML version', () => {
-  assert.equal(worksCited({ kind: 'whole', authors: [], title: 'A <b> & C', publisher: 'P', date: '' }).html, '<i>A &lt;b&gt; &amp; C</i>. P.');
+  assert.equal(worksCited({ kind: 'whole', authors: [], title: 'A <b> & C', publisher: 'P', date: {} }).html, '<i>A &lt;b&gt; &amp; C</i>. P.');
 });

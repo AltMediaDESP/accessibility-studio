@@ -17,7 +17,7 @@
       </div>
       <nav class="tabs" role="tablist" aria-label="Tools">
         <button role="tab" id="tab-clean" aria-controls="panel-clean" aria-selected="true">Clean up a paste</button>
-        <button role="tab" id="tab-mla" aria-controls="panel-mla" aria-selected="false" tabindex="-1">MLA citation</button>
+        <button role="tab" id="tab-mla" aria-controls="panel-mla" aria-selected="false" tabindex="-1">Citations</button>
       </nav>
     </header>
 
@@ -69,35 +69,57 @@
         </div>
       </section>
 
-      <!-- ================= MLA ================= -->
+      <!-- ================= Citations ================= -->
       <section id="panel-mla" role="tabpanel" aria-labelledby="tab-mla" hidden>
-        <p class="lead">Fill in what you know about the source. The citation updates as you type (MLA 9th edition).</p>
+        <div class="cite-top">
+          <p class="lead">Fill in what you know about the source. The citation updates as you type.</p>
+          <fieldset class="style-switch">
+            <legend class="visually-hidden">Citation style</legend>
+            <label><input type="radio" name="style" value="mla" form="mla-form" checked /> MLA 9</label>
+            <label><input type="radio" name="style" value="apa" form="mla-form" /> APA 7</label>
+          </fieldset>
+        </div>
         <div class="mla">
           <form id="mla-form" class="card" autocomplete="off">
             <fieldset class="kind">
               <legend>What are you citing?</legend>
               <label><input type="radio" name="kind" value="part" checked /> Part of something (article, chapter, web page)</label>
-              <label><input type="radio" name="kind" value="whole" /> A whole book or website</label>
+              <label><input type="radio" name="kind" value="whole" /> A whole book, report or website</label>
             </fieldset>
 
             <fieldset>
-              <legend>Authors</legend>
+              <legend>Authors <span class="muted small">(a group, like an agency, goes in Last name)</span></legend>
               <div id="authors"></div>
               <button type="button" id="add-author" class="small-button">Add another author</button>
             </fieldset>
 
-            <label class="field"><span id="title-label">Title of the article, chapter or page</span><input name="title" /></label>
+            <label class="field">
+              <span id="title-label">Title of the article, chapter or page</span>
+              <input name="title" aria-describedby="apa-case" />
+              <span id="apa-case" class="hint muted small" hidden>APA uses sentence case: capitalize only the first word, the first word after a colon, and names.</span>
+            </label>
             <label class="field" id="container-field"><span>Where it appeared (website, journal or book)</span><input name="container" /></label>
-            <label class="field"><span>Publisher <span class="muted">(skip if same as the website name)</span></span><input name="publisher" /></label>
-            <label class="field"><span>Date published <span class="muted">(e.g. 2024 or 12 Mar. 2024)</span></span><input name="date" /></label>
-            <label class="field"><span>Page numbers or web address</span><input name="location" placeholder="42, 12-15 or https://…" /></label>
-            <label class="field"><span>Date you accessed it <span class="muted">(optional, for websites)</span></span><input name="accessed" /></label>
+            <div class="row-fields" id="volume-fields">
+              <label class="field"><span>Volume <span class="muted">(journals)</span></span><input name="volume" inputmode="numeric" /></label>
+              <label class="field"><span>Issue</span><input name="issue" inputmode="numeric" /></label>
+            </div>
+            <label class="field"><span>Publisher <span class="muted">(skip if it's the website or journal name)</span></span><input name="publisher" /></label>
+            <fieldset>
+              <legend class="field-legend">Date published <span class="muted">(year is enough; leave empty if there is none)</span></legend>
+              <div class="row-fields date">
+                <label class="field"><span>Year</span><input name="year" inputmode="numeric" maxlength="4" /></label>
+                <label class="field"><span>Month</span><select name="month"><option value=""></option></select></label>
+                <label class="field"><span>Day</span><input name="day" inputmode="numeric" maxlength="2" /></label>
+              </div>
+            </fieldset>
+            <label class="field"><span>Page numbers, web address or DOI</span><input name="location" placeholder="42, 12-15, https://… or 10.1234/…" /></label>
+            <label class="field" id="accessed-field"><span>Date you accessed it <span class="muted">(optional, for websites)</span></span><input name="accessed" placeholder="3 Oct. 2026" /></label>
             <label class="field"><span>Quote <span class="muted">(optional)</span></span><textarea name="quote" rows="3"></textarea></label>
           </form>
 
           <div class="mla-output">
             <div class="card">
-              <h2 class="label">Works Cited entry</h2>
+              <h2 class="label" id="entry-label">Works Cited entry</h2>
               <p id="mla-entry" class="citation hanging" aria-live="polite"></p>
               <button type="button" class="copy-citation" data-target="entry">Copy entry</button>
             </div>

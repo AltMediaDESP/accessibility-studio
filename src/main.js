@@ -1,5 +1,7 @@
 import { cleanHtml, textToHtml, stripMarks, makeHeaderRow, removeColor } from './lib/clean.js';
-import { worksCited, inText } from './lib/mla.js';
+import * as mla from './lib/mla.js';
+import * as apa from './lib/apa.js';
+import { MONTHS } from './lib/cite-common.js';
 
 import '@fontsource/archivo/latin-400.css';
 import '@fontsource/archivo/latin-600.css';
@@ -348,9 +350,13 @@ function addAuthor(first = '', last = '') {
 addAuthor();
 $('add-author').addEventListener('click', () => addAuthor().querySelector('.first').focus());
 
+const monthSelect = form.elements.month;
+MONTHS.forEach((name, i) => monthSelect.add(new Option(name, String(i + 1))));
+
 function readSource() {
   const data = new FormData(form);
   return {
+    style: data.get('style'),
     kind: data.get('kind'),
     authors: [...authors.querySelectorAll('.author')].map((row) => ({
       first: row.querySelector('.first').value,
@@ -358,8 +364,10 @@ function readSource() {
     })),
     title: data.get('title'),
     container: data.get('container'),
+    volume: data.get('volume'),
+    issue: data.get('issue'),
     publisher: data.get('publisher'),
-    date: data.get('date'),
+    date: { year: data.get('year'), month: data.get('month'), day: data.get('day') },
     location: data.get('location'),
     accessed: data.get('accessed'),
     quote: data.get('quote'),
@@ -371,15 +379,34 @@ let citation = { entry: null, intext: null };
 function updateCitation() {
   const source = readSource();
   const whole = source.kind === 'whole';
+  const isApa = source.style === 'apa';
   $('container-field').hidden = whole;
-  $('title-label').textContent = whole ? 'Title of the book or website' : 'Title of the article, chapter or page';
+  $('volume-fields').hidden = whole;
+  $('accessed-field').hidden = isApa; // APA only uses access dates for pages that change constantly
+  $('apa-case').hidden = !isApa;
+  $('title-label').textContent = whole ? 'Title of the book, report or website' : 'Title of the article, chapter or page';
+  $('entry-label').textContent = isApa ? 'Reference list entry' : 'Works Cited entry';
+  const style = isApa ? { entry: apa.reference, inText: apa.inText } : { entry: mla.worksCited, inText: mla.inText };
   const empty = !source.title?.trim() && source.authors.every((a) => !a.first.trim() && !a.last.trim());
-  citation = { entry: worksCited(source), intext: inText(source, source.quote) };
+  citation = { entry: style.entry(source), intext: style.inText(source, source.quote) };
   $('mla-entry').innerHTML = empty ? '<span class="muted">Your entry appears here.</span>' : citation.entry.html;
   $('mla-intext').innerHTML = empty ? '<span class="muted">Your in-text citation appears here.</span>' : citation.intext.html;
+  try {
+    localStorage.setItem('citation-style', source.style);
+  } catch {
+    // ignore
+  }
 }
 form.addEventListener('input', updateCitation);
+document.querySelectorAll('input[name="style"]').forEach((r) => r.addEventListener('change', updateCitation));
 form.addEventListener('submit', (e) => e.preventDefault());
+try {
+  const saved = localStorage.getItem('citation-style');
+  const radio = saved && document.querySelector(`input[name="style"][value="${saved}"]`);
+  if (radio) radio.checked = true;
+} catch {
+  // ignore
+}
 updateCitation();
 
 for (const button of document.querySelectorAll('.copy-citation')) {
@@ -387,7 +414,7 @@ for (const button of document.querySelectorAll('.copy-citation')) {
     const c = citation[button.dataset.target];
     const html =
       button.dataset.target === 'entry'
-        ? `<p style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 2; padding-left: 0.5in; text-indent: -0.5in;">${c.html}</p>`
+        ? `<p style="font-family: Arial, sans-serif; font-size: 12pt; line-height: 2; margin-left: 0.5in; text-indent: -0.5in;">${c.html}</p>`
         : `<span>${c.html}</span>`;
     const ok = await copyRich(html, c.text);
     $('mla-status').textContent = ok ? 'Copied, with italics. Paste it into your document.' : 'Copying was blocked; select the text and press Ctrl+C.';

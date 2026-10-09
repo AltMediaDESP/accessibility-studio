@@ -23,6 +23,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -230,7 +234,7 @@ textarea {
 }
 @media (max-width: 900px) {
   .workspace {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -390,7 +394,7 @@ button.change-head:hover {
 }
 @media (max-width: 900px) {
   .mla {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -431,7 +435,7 @@ legend {
 
 .author {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 8px;
   align-items: end;
 }
@@ -462,4 +466,85 @@ legend {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 24px 32px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.cite-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+}
+
+.style-switch {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+}
+.style-switch label {
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--muted);
+}
+.style-switch label {
+  position: relative;
+}
+.style-switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.style-switch label:has(input:checked) {
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.style-switch label:has(input:focus-visible) {
+  outline: 3px solid var(--accent);
+}
+
+.row-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+.row-fields.date {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
+}
+.field-legend {
+  font-weight: 400;
+  font-size: 0.87rem;
+  margin-bottom: 3px;
+}
+.hint {
+  display: block;
+  margin-top: 4px;
+}
+
+select {
+  font: inherit;
+  color: var(--text);
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 9px;
+  width: 100%;
 }

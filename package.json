@@ -1,6 +1,6 @@
 {
   "name": "accessibility-studio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Web page that cleans content pasted from Canvas, Word, Google Docs or PowerPoint into accessible HTML for Google Docs, and builds MLA citations.",
   "scripts": {
     "dev": "vite",
