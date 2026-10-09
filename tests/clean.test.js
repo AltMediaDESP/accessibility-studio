@@ -200,6 +200,13 @@ test('light or low-contrast colors are flagged; black, gray and white are droppe
   assert.deepEqual(titles(changes, 'review'), ['Hard-to-read color #ffcc00', 'Colored text kept (#0066cc)']);
 });
 
+test('old <font> tags: color kept when meaningful, the tag itself removed', () => {
+  const { body } = clean('<p><font color="#0000cc" face="Arial">Blue</font> and <font size="2">small</font></p>');
+  assert.equal(body.querySelector('font'), null);
+  stripMarks(body);
+  assert.equal(body.innerHTML, '<p><span style="color: #0000cc;">Blue</span> and small</p>');
+});
+
 test('file-name alt text is flagged; empty alt is reported as decorative', () => {
   const { changes } = clean('<p><img src="a.png" alt="IMG_2041.jpg"><img src="b.png" alt=""><img src="c.png" alt="Bar chart of enrollment by year"></p>');
   assert.deepEqual(

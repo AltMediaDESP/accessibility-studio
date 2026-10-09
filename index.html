@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Clean up content pasted from Canvas, Word, Google Docs or PowerPoint into accessible text for Google Docs. Runs entirely in your browser." />
+    <title>Accessibility Studio</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="top">
+      <div class="brand">
+        <img src="/icon.svg" alt="" width="36" height="36" />
+        <h1>Accessibility Studio</h1>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Tools">
+        <button role="tab" id="tab-clean" aria-controls="panel-clean" aria-selected="true">Clean up a paste</button>
+        <button role="tab" id="tab-mla" aria-controls="panel-mla" aria-selected="false" tabindex="-1">MLA citation</button>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- ================= Clean up ================= -->
+      <section id="panel-clean" role="tabpanel" aria-labelledby="tab-clean">
+        <div id="start">
+          <p class="lead">
+            Copy content from Canvas, Word, Google Docs or PowerPoint and paste it below. You get back clean,
+            accessible text to paste into Google Docs, with a list of everything that was fixed and what still needs you.
+          </p>
+          <div
+            id="paste"
+            class="paste"
+            contenteditable="true"
+            role="textbox"
+            aria-multiline="true"
+            aria-label="Paste content here"
+            aria-describedby="paste-hint"
+          ></div>
+          <p id="paste-hint" class="muted small">
+            Click the box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>. Nothing is uploaded: everything happens in this browser tab.
+          </p>
+        </div>
+
+        <div id="result" hidden>
+          <div class="toolbar">
+            <button id="copy" class="primary">Copy for Google Docs</button>
+            <button id="restart">Start over</button>
+            <details class="options">
+              <summary>Options</summary>
+              <label><input type="checkbox" id="opt-emoji" checked /> Remove emoji</label>
+              <label><input type="checkbox" id="opt-format" checked /> Standard formatting (Arial 12pt, 1.5 spacing)</label>
+            </details>
+            <p id="status" class="status" role="status" aria-live="polite"></p>
+          </div>
+
+          <div class="workspace">
+            <div class="doc-column">
+              <h2 class="label" id="editor-label">Cleaned text <span class="muted">(you can edit it)</span></h2>
+              <div id="editor" class="paper" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="editor-label"></div>
+            </div>
+            <aside class="review" aria-labelledby="review-heading">
+              <h2 class="label" id="review-heading">Review</h2>
+              <p id="summary" class="muted small"></p>
+              <ul id="changes" class="changes"></ul>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= MLA ================= -->
+      <section id="panel-mla" role="tabpanel" aria-labelledby="tab-mla" hidden>
+        <p class="lead">Fill in what you know about the source. The citation updates as you type (MLA 9th edition).</p>
+        <div class="mla">
+          <form id="mla-form" class="card" autocomplete="off">
+            <fieldset class="kind">
+              <legend>What are you citing?</legend>
+              <label><input type="radio" name="kind" value="part" checked /> Part of something (article, chapter, web page)</label>
+              <label><input type="radio" name="kind" value="whole" /> A whole book or website</label>
+            </fieldset>
+
+            <fieldset>
+              <legend>Authors</legend>
+              <div id="authors"></div>
+              <button type="button" id="add-author" class="small-button">Add another author</button>
+            </fieldset>
+
+            <label class="field"><span id="title-label">Title of the article, chapter or page</span><input name="title" /></label>
+            <label class="field" id="container-field"><span>Where it appeared (website, journal or book)</span><input name="container" /></label>
+            <label class="field"><span>Publisher <span class="muted">(skip if same as the website name)</span></span><input name="publisher" /></label>
+            <label class="field"><span>Date published <span class="muted">(e.g. 2024 or 12 Mar. 2024)</span></span><input name="date" /></label>
+            <label class="field"><span>Page numbers or web address</span><input name="location" placeholder="42, 12-15 or https://…" /></label>
+            <label class="field"><span>Date you accessed it <span class="muted">(optional, for websites)</span></span><input name="accessed" /></label>
+            <label class="field"><span>Quote <span class="muted">(optional)</span></span><textarea name="quote" rows="3"></textarea></label>
+          </form>
+
+          <div class="mla-output">
+            <div class="card">
+              <h2 class="label">Works Cited entry</h2>
+              <p id="mla-entry" class="citation hanging" aria-live="polite"></p>
+              <button type="button" class="copy-citation" data-target="entry">Copy entry</button>
+            </div>
+            <div class="card">
+              <h2 class="label">In-text citation</h2>
+              <p id="mla-intext" class="citation" aria-live="polite"></p>
+              <button type="button" class="copy-citation" data-target="intext">Copy in-text citation</button>
+            </div>
+            <p id="mla-status" class="status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot muted small">
+      Made by the DESP Alt Media team. Your content never leaves this browser tab.
+      <a href="https://github.com/AltMediaDESP/accessibility-studio">Source and changelog</a>
+    </footer>
+  </body>
+</html>

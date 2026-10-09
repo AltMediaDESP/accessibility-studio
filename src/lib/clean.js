@@ -84,6 +84,7 @@ export function textToHtml(text) {
 export function stripMarks(root) {
   root.querySelectorAll('[data-change]').forEach((el) => el.removeAttribute('data-change'));
   root.querySelectorAll('[data-flash]').forEach((el) => el.removeAttribute('data-flash'));
+  root.querySelectorAll('[data-keep-color]').forEach((el) => el.removeAttribute('data-keep-color'));
 }
 
 // ---------- change log ----------
@@ -637,7 +638,7 @@ function keepMeaningfulColors({ body, log }) {
         status: 'review',
         kind: 'color',
         title: `Hard-to-read color ${color.hex}`,
-        detail: `Used in ${places}, e.g. ${sample}. Contrast on white is ${ratio.toFixed(1)}:1; it needs 4.5:1. Pick a darker shade, or remove it.`,
+        detail: `Used in ${places} (${sample}). Contrast on white is ${ratio.toFixed(1)}:1; it needs 4.5:1. Pick a darker shade, or remove it.`,
         target: elements[0],
         action: 'remove-color',
       });
@@ -646,7 +647,7 @@ function keepMeaningfulColors({ body, log }) {
         status: 'review',
         kind: 'color',
         title: `Colored text kept (${color.hex})`,
-        detail: `Used in ${places}, e.g. ${sample}. Make sure the color isn't the only thing showing what it means (add a word like “Important:”).`,
+        detail: `Used in ${places} (${sample}). Make sure the color isn't the only thing showing what it means (add a word like “Important:”).`,
         target: elements[0],
         action: 'remove-color',
       });
@@ -726,7 +727,7 @@ const KEEP_ATTRS = {
 };
 
 function stripAttributes({ body }) {
-  for (const el of [...body.querySelectorAll('*')]) {
+  for (let el of [...body.querySelectorAll('*')]) {
     const keep = KEEP_ATTRS[el.tagName] || [];
     const color = el.getAttribute('data-keep-color');
     for (const attr of [...el.attributes]) {
@@ -901,15 +902,27 @@ const TYPOGRAPHY = {
   TD: 'padding: 6pt; border: 1px solid #dadce0;',
 };
 
+/** Joins style strings; a property set later replaces the same property set earlier. */
+function mergeStyles(...styles) {
+  const props = new Map();
+  for (const style of styles) {
+    for (const decl of style.split(';')) {
+      const i = decl.indexOf(':');
+      if (i > 0) props.set(decl.slice(0, i).trim(), decl.slice(i + 1).trim());
+    }
+  }
+  return [...props].map(([k, v]) => `${k}: ${v};`).join(' ');
+}
+
 function applyStandardFormatting({ body }) {
   for (const el of body.querySelectorAll('p, h1, h2, h3, h4, h5, h6, ul, ol, li, table, th, td')) {
     const own = TYPOGRAPHY[el.tagName] || '';
     const base = ['UL', 'OL', 'TABLE'].includes(el.tagName) ? '' : TYPOGRAPHY.base;
-    const keep = el.getAttribute('data-keep-color') ? ` color: ${el.getAttribute('data-keep-color')};` : '';
-    el.setAttribute('style', `${base} ${own}${keep}`.trim());
+    const keep = el.getAttribute('data-keep-color') ? `color: ${el.getAttribute('data-keep-color')};` : '';
+    el.setAttribute('style', mergeStyles(base, own, keep));
   }
   for (const ol of body.querySelectorAll('ol[type]')) {
     const type = ol.getAttribute('type') === 'A' ? 'upper-alpha' : 'lower-alpha';
-    ol.setAttribute('style', `${ol.getAttribute('style')} list-style-type: ${type};`);
+    ol.setAttribute('style', mergeStyles(ol.getAttribute('style') || '', `list-style-type: ${type};`));
   }
 }
