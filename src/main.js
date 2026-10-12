@@ -2,6 +2,7 @@ import { cleanHtml, textToHtml, stripMarks, makeHeaderRow, removeColor } from '.
 import * as mla from './lib/mla.js';
 import * as apa from './lib/apa.js';
 import { MONTHS } from './lib/cite-common.js';
+import { sampleHtml } from './sample.js';
 
 import '@fontsource/archivo/latin-400.css';
 import '@fontsource/archivo/latin-600.css';
@@ -70,6 +71,13 @@ $('paste').addEventListener('input', () => {
   run();
 });
 
+$('sample').addEventListener('click', () => {
+  state.source = sampleHtml;
+  run();
+  setStatus('This is an example. Click Start over to paste your own content.');
+  $('editor').focus();
+});
+
 function options() {
   return { removeEmoji: $('opt-emoji').checked, standardFormatting: $('opt-format').checked };
 }
@@ -117,23 +125,38 @@ const GROUPS = [
 function renderChanges() {
   const list = $('changes');
   list.innerHTML = '';
-  const open = state.changes.filter((c) => c.status === 'review').length;
-  const fixed = state.changes.filter((c) => c.status === 'fixed').length;
-  $('summary').textContent =
-    state.changes.length === 0
-      ? 'Nothing needed fixing.'
-      : `${open} ${open === 1 ? 'thing needs' : 'things need'} you · ${fixed} fixed automatically`;
+  renderSummary();
 
   for (const [status, heading] of GROUPS) {
     const items = state.changes.filter((c) => c.status === status);
     if (!items.length) continue;
     const groupHeading = document.createElement('li');
     groupHeading.className = 'group';
-    groupHeading.innerHTML = `<h3>${heading}</h3>`;
+    groupHeading.innerHTML = `<h3>${heading} <span class="count">${items.length}</span></h3>`;
     list.appendChild(groupHeading);
     for (const change of items) list.appendChild(renderChange(change));
   }
   markOpenItems();
+}
+
+// "2 need you · 9 fixed" as colored pills, or a note when there was nothing to do.
+function renderSummary() {
+  const summary = $('summary');
+  const open = state.changes.filter((c) => c.status === 'review').length;
+  const fixed = state.changes.filter((c) => c.status === 'fixed' || c.status === 'done').length;
+  if (state.changes.length === 0) {
+    summary.textContent = 'Nothing needed fixing.';
+    return;
+  }
+  summary.innerHTML = '';
+  const pill = (kind, text) => {
+    const span = document.createElement('span');
+    span.className = `pill ${kind}`;
+    span.textContent = text;
+    summary.appendChild(span);
+  };
+  pill(open ? 'review' : 'fixed', open ? `${open} ${open === 1 ? 'needs' : 'need'} you` : 'All done');
+  pill('fixed', `${fixed} fixed`);
 }
 
 function target(change) {
@@ -242,9 +265,7 @@ function resolve(change, message) {
   const li = $('changes').querySelector(`[data-id="${change.id}"]`);
   li.classList.add('done');
   setStatus(message);
-  const open = state.changes.filter((c) => c.status === 'review').length;
-  const fixed = state.changes.filter((c) => c.status === 'fixed' || c.status === 'done').length;
-  $('summary').textContent = `${open} ${open === 1 ? 'thing needs' : 'things need'} you · ${fixed} fixed`;
+  renderSummary();
   markOpenItems();
 }
 

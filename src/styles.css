@@ -29,8 +29,14 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--text);
+}
+main {
+  flex: 1;
 }
 
 a {
@@ -72,6 +78,11 @@ kbd {
 
 /* ---------- header and tabs ---------- */
 
+.topbar {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #1c1d21 0%, var(--bg) 100%);
+}
+
 .top {
   display: flex;
   flex-wrap: wrap;
@@ -80,7 +91,7 @@ kbd {
   gap: 12px 24px;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 20px 24px 0;
+  padding: 14px 24px;
 }
 
 .brand {
@@ -88,13 +99,23 @@ kbd {
   align-items: center;
   gap: 12px;
 }
+.brand img {
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--border);
+}
 
 h1 {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.15rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  line-height: 1.2;
+}
+.tagline {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
 .tabs {
@@ -107,22 +128,41 @@ h1 {
 }
 
 .tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   background: transparent;
   border: 0;
   color: var(--muted);
   padding: 8px 14px;
   border-radius: 7px;
 }
+.tabs button:hover {
+  color: var(--text);
+}
 .tabs button[aria-selected='true'] {
   background: var(--panel);
   color: var(--text);
   box-shadow: inset 0 0 0 1px var(--border);
 }
+.tab-icon {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tabs button[aria-selected='true'] .tab-icon {
+  stroke: var(--accent);
+}
 
 main {
+  width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 16px 24px 32px;
+  padding: 24px 24px 48px;
 }
 
 .lead {
@@ -144,6 +184,20 @@ button,
 }
 button:hover {
   border-color: #50535c;
+}
+button.primary:hover {
+  background: #6a9dff;
+}
+.link-button {
+  background: none;
+  border: 0;
+  padding: 4px 2px;
+  color: var(--info);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.link-button:hover {
+  color: #b5d0ff;
 }
 button.primary {
   background: var(--accent);
@@ -167,24 +221,175 @@ textarea {
   width: 100%;
 }
 
-/* ---------- paste box ---------- */
+/* ---------- start screen ---------- */
 
+.start {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.hero {
+  text-align: center;
+  margin: 12px 0 24px;
+}
+.hero-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.hero .lead {
+  text-wrap: balance;
+  margin: 12px auto 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.dropzone {
+  position: relative;
+}
 .paste {
-  min-height: 260px;
-  background: var(--field);
-  border: 2px dashed var(--border);
-  border-radius: 12px;
+  min-height: 280px;
+  background: radial-gradient(ellipse at 50% 0%, #1e2330 0%, var(--field) 70%);
+  border: 2px dashed #3d4048;
+  border-radius: 16px;
   padding: 20px;
   overflow: auto;
+  caret-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.paste:empty::before {
-  content: 'Paste here';
-  color: var(--muted);
-  font-size: 1.2rem;
+.paste:hover {
+  border-color: #565a64;
 }
 .paste:focus {
   border-color: var(--accent);
+  border-style: solid;
+  box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.2);
   outline: none;
+}
+.paste-prompt {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px;
+  text-align: center;
+  pointer-events: none;
+}
+.paste-icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 6px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.paste-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+.paste-title .ready,
+.dropzone:focus-within .paste-title .idle {
+  display: none;
+}
+.dropzone:focus-within .paste-title .ready {
+  display: inline;
+}
+.paste-keys {
+  margin: 0;
+}
+.sources {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+.sources li {
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.start-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 12px 2px 0;
+}
+.private {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.87rem;
+}
+.private svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--fixed);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+}
+@media (max-width: 760px) {
+  .features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.features li {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+.features svg {
+  width: 26px;
+  height: 26px;
+  padding: 6px;
+  box-sizing: content-box;
+  border-radius: 8px;
+  background: rgba(79, 140, 255, 0.12);
+  fill: none;
+  stroke: var(--info);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.features h3 {
+  margin: 12px 0 4px;
+  font-size: 1rem;
+}
+.features p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 /* ---------- result ---------- */
@@ -194,7 +399,11 @@ textarea {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 .options {
@@ -206,7 +415,7 @@ textarea {
   color: var(--muted);
 }
 .options[open] {
-  background: var(--panel);
+  background: var(--field);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0 12px 10px;
@@ -223,7 +432,9 @@ textarea {
   margin: 0;
   color: var(--fixed);
   flex-basis: 100%;
-  min-height: 1.5em;
+}
+.status:empty {
+  display: none;
 }
 
 .workspace {
@@ -253,6 +464,7 @@ textarea {
 
 /* The cleaned text sits on a white "page", like it will in Google Docs. */
 .paper {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
   background: #ffffff;
   color: #202124;
   color-scheme: light;
@@ -292,7 +504,7 @@ textarea {
 
 /* ---------- review list ---------- */
 
-.review {
+.review-panel {
   position: sticky;
   top: 12px;
   max-height: calc(100vh - 24px);
@@ -309,9 +521,46 @@ textarea {
   padding: 0;
 }
 .changes .group h3 {
-  margin: 16px 0 6px;
-  font-size: 0.87rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 8px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--muted);
+}
+.count {
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  color: var(--text);
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 7px;
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.87rem;
+}
+.pill {
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+.pill.review {
+  color: var(--review);
+  background: rgba(255, 180, 84, 0.12);
+}
+.pill.fixed {
+  color: var(--fixed);
+  background: rgba(111, 212, 154, 0.12);
 }
 
 .change {
@@ -384,7 +633,7 @@ button.change-head:hover {
   border: 1px solid var(--border);
 }
 
-/* ---------- MLA ---------- */
+/* ---------- citations ---------- */
 
 .mla {
   display: grid;
@@ -415,12 +664,40 @@ legend {
   font-weight: 600;
   margin-bottom: 6px;
 }
+.kind {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+.kind legend {
+  grid-column: 1 / -1;
+}
+@media (max-width: 480px) {
+  .kind {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .kind label {
-  display: block;
-  margin: 4px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 12px;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  cursor: pointer;
+}
+.kind label:has(input:checked) {
+  border-color: var(--accent);
+  background: rgba(79, 140, 255, 0.08);
 }
 .kind input {
   width: auto;
+  margin: 4px 0 0;
+}
+.kind label > span {
+  display: flex;
+  flex-direction: column;
 }
 
 .field {
@@ -463,9 +740,16 @@ legend {
 }
 
 .foot {
+  border-top: 1px solid var(--border);
+}
+.foot-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 24px;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 24px 32px;
+  padding: 16px 24px 24px;
 }
 
 .visually-hidden {
@@ -547,4 +831,12 @@ select {
   border-radius: 6px;
   padding: 7px 9px;
   width: 100%;
+}
+
+/* Keep the finished citation in view while filling in the form. */
+@media (min-width: 901px) {
+  .mla-output {
+    position: sticky;
+    top: 16px;
+  }
 }

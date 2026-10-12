@@ -10,37 +10,88 @@
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <header class="top">
-      <div class="brand">
-        <img src="/icon.svg" alt="" width="36" height="36" />
-        <h1>Accessibility Studio</h1>
+    <header class="topbar">
+      <div class="top">
+        <div class="brand">
+          <img src="/icon.svg" alt="" width="40" height="40" />
+          <div>
+            <h1>Accessibility Studio</h1>
+            <p class="tagline">Accessible text for Google Docs</p>
+          </div>
+        </div>
+        <nav class="tabs" role="tablist" aria-label="Tools">
+          <button role="tab" id="tab-clean" aria-controls="panel-clean" aria-selected="true">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v3H9z M7 5H5v15h14V5h-2" /><path d="M8.5 12.5l2.3 2.3 4.7-5" /></svg>
+            Clean up a paste
+          </button>
+          <button role="tab" id="tab-mla" aria-controls="panel-mla" aria-selected="false" tabindex="-1">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h10a2 2 0 0 1 2 2v14H8a2 2 0 0 1-2-2z M6 18a2 2 0 0 1 2-2h10 M10 8h4" /></svg>
+            Citations
+          </button>
+        </nav>
       </div>
-      <nav class="tabs" role="tablist" aria-label="Tools">
-        <button role="tab" id="tab-clean" aria-controls="panel-clean" aria-selected="true">Clean up a paste</button>
-        <button role="tab" id="tab-mla" aria-controls="panel-mla" aria-selected="false" tabindex="-1">Citations</button>
-      </nav>
     </header>
 
     <main id="main">
       <!-- ================= Clean up ================= -->
       <section id="panel-clean" role="tabpanel" aria-labelledby="tab-clean">
-        <div id="start">
-          <p class="lead">
-            Copy content from Canvas, Word, Google Docs or PowerPoint and paste it below. You get back clean,
-            accessible text to paste into Google Docs, with a list of everything that was fixed and what still needs you.
-          </p>
-          <div
-            id="paste"
-            class="paste"
-            contenteditable="true"
-            role="textbox"
-            aria-multiline="true"
-            aria-label="Paste content here"
-            aria-describedby="paste-hint"
-          ></div>
-          <p id="paste-hint" class="muted small">
-            Click the box and press <kbd>Ctrl</kbd>+<kbd>V</kbd>. Nothing is uploaded: everything happens in this browser tab.
-          </p>
+        <div id="start" class="start">
+          <div class="hero">
+            <h2 class="hero-title">Turn any paste into accessible text</h2>
+            <p class="lead">
+              Copy content from Canvas, Word, Google Docs or PowerPoint and paste it below. You get back clean text for
+              Google Docs, with a list of everything that was fixed and what still needs you.
+            </p>
+          </div>
+
+          <div class="dropzone">
+            <div
+              id="paste"
+              class="paste"
+              contenteditable="true"
+              role="textbox"
+              aria-multiline="true"
+              aria-label="Paste content here"
+              aria-describedby="paste-hint"
+            ></div>
+            <div class="paste-prompt" aria-hidden="true">
+              <svg class="paste-icon" viewBox="0 0 48 48"><rect x="10" y="8" width="28" height="34" rx="4" /><rect x="17" y="4" width="14" height="8" rx="2.5" /><path d="M17 22h14 M17 28h14 M17 34h8" /></svg>
+              <p class="paste-title"><span class="idle">Click here, then paste</span><span class="ready">Now paste</span></p>
+              <p class="paste-keys"><kbd>Ctrl</kbd> + <kbd>V</kbd> <span class="muted">or</span> <kbd>⌘</kbd> + <kbd>V</kbd> <span class="muted">on a Mac</span></p>
+              <ul class="sources">
+                <li>Canvas</li>
+                <li>Word</li>
+                <li>Google Docs</li>
+                <li>PowerPoint</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="start-foot">
+            <p id="paste-hint" class="private">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+              Nothing is uploaded. Everything happens in this browser tab.
+            </p>
+            <button type="button" id="sample" class="link-button">Try it with an example</button>
+          </div>
+
+          <ul class="features">
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10 M4 12h16 M4 18h16" /><path d="M4 6h10" class="accent" /></svg>
+              <h3>Real structure</h3>
+              <p>Big or bold lines become real headings, typed bullets become real lists, and tables get header rows, so screen readers can find their way around.</p>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5v5.5 M12 16.2v.3" /></svg>
+              <h3>What still needs you</h3>
+              <p>Images without descriptions, vague links and hard-to-read colors are listed, and most can be fixed right in the list.</p>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5 M10 13h6 M10 17h6" /></svg>
+              <h3>Ready for Google Docs</h3>
+              <p>Arial 12pt with consistent heading sizes, and no leftover styles, blank lines or emoji. One click copies it all.</p>
+            </li>
+          </ul>
         </div>
 
         <div id="result" hidden>
@@ -60,9 +111,9 @@
               <h2 class="label" id="editor-label">Cleaned text <span class="muted">(you can edit it)</span></h2>
               <div id="editor" class="paper" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="editor-label"></div>
             </div>
-            <aside class="review" aria-labelledby="review-heading">
+            <aside class="review-panel" aria-labelledby="review-heading">
               <h2 class="label" id="review-heading">Review</h2>
-              <p id="summary" class="muted small"></p>
+              <p id="summary" class="summary"></p>
               <ul id="changes" class="changes"></ul>
             </aside>
           </div>
@@ -83,8 +134,8 @@
           <form id="mla-form" class="card" autocomplete="off">
             <fieldset class="kind">
               <legend>What are you citing?</legend>
-              <label><input type="radio" name="kind" value="part" checked /> Part of something (article, chapter, web page)</label>
-              <label><input type="radio" name="kind" value="whole" /> A whole book, report or website</label>
+              <label><input type="radio" name="kind" value="part" checked /> <span><strong>Part of something</strong><span class="muted small">Article, chapter or web page</span></span></label>
+              <label><input type="radio" name="kind" value="whole" /> <span><strong>A whole work</strong><span class="muted small">Book, report or website</span></span></label>
             </fieldset>
 
             <fieldset>
@@ -134,9 +185,11 @@
       </section>
     </main>
 
-    <footer class="foot muted small">
-      Made by the DESP Alt Media team. Your content never leaves this browser tab.
-      <a href="https://github.com/AltMediaDESP/accessibility-studio">Source and changelog</a>
+    <footer class="foot">
+      <div class="foot-inner muted small">
+        <span>Made by the DESP Alt Media team. Your content never leaves this browser tab.</span>
+        <a href="https://github.com/AltMediaDESP/accessibility-studio">Source and changelog</a>
+      </div>
     </footer>
   </body>
 </html>

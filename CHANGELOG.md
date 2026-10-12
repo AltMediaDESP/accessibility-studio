@@ -2,6 +2,19 @@
 
 Every change to the page is listed here, newest first.
 
+## 0.3.0 (2026-10-12)
+
+### Changed
+- **A new look.** A clearer start screen with a large paste area, the programs it works with, and three short notes on what the page does. The header, toolbar and footer were tidied up, and the review list shows its counts as colored labels.
+- "What are you citing?" is now two clear choices instead of small radio buttons.
+- The finished citation stays in view while you fill in the form.
+
+### Added
+- **Try it with an example** loads a sample Canvas page, so you can see what the page does before pasting your own content.
+
+### Fixed
+- Items in the review list were drawn as nested panels with extra padding.
+
 ## 0.2.0 (2026-10-09)
 
 ### Added

@@ -15,6 +15,8 @@ Everything happens in your browser tab. What you paste is never uploaded or save
    - **Fixed automatically:** what was changed, so you can check it. Click any item to jump to it in the text.
 4. Click **Copy for Google Docs** and paste into your document.
 
+To see how it works first, click **Try it with an example** under the paste box.
+
 ### What it does
 
 | Problem in the paste | What happens |
